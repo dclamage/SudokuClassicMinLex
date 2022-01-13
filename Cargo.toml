@@ -1,0 +1,21 @@
+[package]
+name = "sudoku-classic-minlex"
+version = "0.1.0"
+edition = "2021"
+authors = ["David Clamage <rangsk@gmail.com>"]
+license = "MIT OR Apache-2.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "sudoku_classic_minlex"
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+itertools = "0.10.2"
+rand = "0.8.4"
+
+[dependencies.pyo3]
+version = "0.15.1"
+features = ["extension-module"]
