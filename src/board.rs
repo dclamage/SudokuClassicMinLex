@@ -237,6 +237,87 @@ impl Board {
         None
     }
 
+    fn eliminate_contradiction(&mut self, max_depth: usize) -> LogicResult {
+        if max_depth == 0 {
+            return LogicResult::None;
+        }
+
+        for i in 0..self.cells.len() {
+            let cell_mask = self.cells[i];
+            if cell_mask == 0 {
+                return LogicResult::Invalid;
+            }
+
+            if is_value_set(cell_mask) {
+                continue;
+            }
+            
+            for value in 1..10 {
+                let value_mask = value_mask(value);
+                if (cell_mask & value_mask) == 0 {
+                    continue;
+                }
+
+                let mut test_board = self.clone();
+                if !test_board.set_value(i, value) {
+                    if !self.clear_value(i, value_mask) {
+                        return LogicResult::Invalid;
+                    }
+                    return LogicResult::Changed;
+                }
+
+                let test_singles_result = test_board.eliminate_singles_and_contradictions(max_depth - 1);
+                if test_singles_result == LogicResult::Invalid {
+                    if !self.clear_value(i, value_mask) {
+                        return LogicResult::Invalid;
+                    }
+                    return LogicResult::Changed;
+                }
+            }
+        }
+
+        LogicResult::None
+    }
+
+    fn eliminate_singles_and_contradictions(&mut self, max_depth: usize) -> LogicResult {
+        let mut result = LogicResult::None;
+        loop {
+            let singles_result = self.set_singles();
+            if singles_result == LogicResult::Solved {
+                return singles_result;
+            }
+            if singles_result == LogicResult::Invalid {
+                return singles_result;
+            }
+            if singles_result == LogicResult::Changed {
+                result = LogicResult::Changed;
+            }
+
+            let con_result = self.eliminate_contradiction(max_depth);
+            match con_result {
+                LogicResult::Solved => return con_result,
+                LogicResult::Invalid => return con_result,
+                LogicResult::Changed => result = LogicResult::Changed,
+                LogicResult::None => return result,
+            }
+        }
+    }
+
+    pub fn singles_depth_required(&self) -> Option<usize> {
+        let mut board = self.clone();
+        let mut cur_depth = 0;
+        loop {
+            let result = board.eliminate_singles_and_contradictions(cur_depth);
+            if result == LogicResult::Solved {
+                return Some(cur_depth);
+            }
+            if result == LogicResult::Invalid {
+                return None;
+            }
+            cur_depth += 1;
+        }
+    }
+
     fn random_value(&self, i: usize) -> u32 {
         let mask = self.cells[i] & ALL_VALUES;
         if mask == 0 {

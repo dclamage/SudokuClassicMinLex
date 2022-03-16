@@ -224,6 +224,27 @@ fn solution_count(sudoku_str: &str, max_solutions: u64) -> u64 {
 }
 
 #[pyfunction]
+fn singles_depth(sudoku_str: &str) -> i64 {
+    let board = Board::from_given_str(sudoku_str);
+    if board.is_none() {
+        -1
+    } else {
+        let board = board.unwrap();
+        let count = board.count_solutions(2);
+        if count != 1 {
+            -1
+        } else {
+            let result = board.singles_depth_required();
+            if result.is_none() {
+                -1
+            } else {
+                result.unwrap() as i64
+            }
+        }
+    }
+}
+
+#[pyfunction]
 fn solve(sudoku_str: &str, random: bool) -> String {
     let board = Board::from_given_str(sudoku_str);
     if board.is_none() {
@@ -420,6 +441,7 @@ fn sudoku_classic_minlex(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(minlex, m)?)?;
     m.add_function(wrap_pyfunction!(solution_count, m)?)?;
     m.add_function(wrap_pyfunction!(solve, m)?)?;
+    m.add_function(wrap_pyfunction!(singles_depth, m)?)?;
 
     Ok(())
 }
