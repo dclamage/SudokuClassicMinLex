@@ -1,6 +1,6 @@
 pub mod board;
 
-use board::Board;
+use board::{Board, LogicResult};
 use itertools::Itertools;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
@@ -265,6 +265,21 @@ fn solve(sudoku_str: &str, random: bool) -> String {
     }
 }
 
+#[pyfunction]
+fn singles(sudoku_str: &str) -> String {
+    let board = Board::from_given_str(sudoku_str);
+    if board.is_none() {
+        String::new()
+    } else {
+        let mut board = board.unwrap();
+        let result = board.set_singles();
+        match result {
+            LogicResult::Invalid => String::new(),
+           _ => board.to_string(),
+        }
+    }
+}
+
 fn parse_digit(c: char) -> u8 {
     let c = c as u8;
     const ZERO: u8 = '0' as u8;
@@ -442,6 +457,7 @@ fn sudoku_classic_minlex(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(solution_count, m)?)?;
     m.add_function(wrap_pyfunction!(solve, m)?)?;
     m.add_function(wrap_pyfunction!(singles_depth, m)?)?;
+    m.add_function(wrap_pyfunction!(singles, m)?)?;
 
     Ok(())
 }
