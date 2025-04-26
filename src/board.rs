@@ -328,7 +328,7 @@ impl Board {
             return get_value(mask);
         }
 
-        let mut value_index: usize = rand::thread_rng().gen_range(0..count);
+        let mut value_index: usize = rand::rng().random_range(0..count);
         for value in 1..=9 {
             if mask & value_mask(value) != 0 {
                 if value_index == 0 {
