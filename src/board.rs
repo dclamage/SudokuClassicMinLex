@@ -101,8 +101,8 @@ impl Board {
         let mut board_stack: Vec<Self> = Vec::with_capacity(81);
         board_stack.push(self.clone());
 
-        while !board_stack.is_empty() {
-            let mut board = board_stack.pop().unwrap();
+        while let Some(mut board) = board_stack.pop() {
+            
 
             let result = board.set_singles();
             if result == LogicResult::Solved {
@@ -155,8 +155,8 @@ impl Board {
         let mut board_stack: Vec<Self> = Vec::with_capacity(81);
         board_stack.push(self.clone());
 
-        while !board_stack.is_empty() {
-            let mut board = board_stack.pop().unwrap();
+        while let Some(mut board) = board_stack.pop() {
+            
 
             let result = board.set_singles();
             if result == LogicResult::Solved {
@@ -200,8 +200,8 @@ impl Board {
         let mut board_stack: Vec<Self> = Vec::with_capacity(81);
         board_stack.push(self.clone());
 
-        while !board_stack.is_empty() {
-            let mut board = board_stack.pop().unwrap();
+        while let Some(mut board) = board_stack.pop() {
+            
 
             let result = board.set_singles();
             if result == LogicResult::Solved {
@@ -458,8 +458,8 @@ impl Board {
 
     pub fn set_naked_singles(&mut self) -> LogicResult {
         let mut changed = false;
-        while !self.singles.is_empty() {
-            let index = self.singles.pop().unwrap();
+        while let Some(index) = self.singles.pop() {
+            
 
             assert!(self.cells[index] & VALUE_SET == 0);
             assert!(self.cells[index] != 0);
