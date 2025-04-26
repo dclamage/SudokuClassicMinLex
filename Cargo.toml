@@ -17,5 +17,5 @@ itertools = "0.10.2"
 rand = "0.8.4"
 
 [dependencies.pyo3]
-version = "0.15.1"
+version = "0.24.1"
 features = ["extension-module"]

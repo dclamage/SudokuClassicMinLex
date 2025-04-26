@@ -452,12 +452,11 @@ fn count_stacks_covered(sudoku: &Vec<u8>, row: usize) -> usize {
 
 /// Implements the Python module pip, registers the class Engine
 #[pymodule]
-fn sudoku_classic_minlex(_py: Python, m: &PyModule) -> PyResult<()> {
+fn sudoku_classic_minlex(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(minlex, m)?)?;
     m.add_function(wrap_pyfunction!(solution_count, m)?)?;
     m.add_function(wrap_pyfunction!(solve, m)?)?;
     m.add_function(wrap_pyfunction!(singles_depth, m)?)?;
     m.add_function(wrap_pyfunction!(singles, m)?)?;
-
     Ok(())
 }
