@@ -37,7 +37,7 @@ pub fn given_string(givens: &Givens) -> String {
             s.push('.');
         } else {
             assert!(givens[i] <= 9);
-            s.push((givens[i] + '0' as u8) as char);
+            s.push((givens[i] + b'0') as char);
         }
     }
     s
@@ -48,6 +48,12 @@ pub struct Board {
     cells: Vec<u32>,
     singles: Vec<usize>,
     num_set_cells: usize,
+}
+
+impl Default for Board {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Board {
@@ -63,10 +69,8 @@ impl Board {
         let mut board = Self::new();
         for i in 0..givens.len() {
             let value = givens[i];
-            if value != 0 {
-                if !board.set_value(i, value as u32) {
-                    return None;
-                }
+            if value != 0 && !board.set_value(i, value as u32) {
+                return None;
             }
         }
         board.recreate_singles();
@@ -81,7 +85,7 @@ impl Board {
                 continue;
             }
 
-            let value = c as u8 - '0' as u8;
+            let value = c as u8 - b'0';
             if !board.set_value(i, value as u32) {
                 return None;
             }
@@ -97,7 +101,7 @@ impl Board {
         let mut board_stack: Vec<Self> = Vec::with_capacity(81);
         board_stack.push(self.clone());
 
-        while board_stack.len() > 0 {
+        while !board_stack.is_empty() {
             let mut board = board_stack.pop().unwrap();
 
             let result = board.set_singles();
@@ -151,7 +155,7 @@ impl Board {
         let mut board_stack: Vec<Self> = Vec::with_capacity(81);
         board_stack.push(self.clone());
 
-        while board_stack.len() > 0 {
+        while !board_stack.is_empty() {
             let mut board = board_stack.pop().unwrap();
 
             let result = board.set_singles();
@@ -196,7 +200,7 @@ impl Board {
         let mut board_stack: Vec<Self> = Vec::with_capacity(81);
         board_stack.push(self.clone());
 
-        while board_stack.len() > 0 {
+        while !board_stack.is_empty() {
             let mut board = board_stack.pop().unwrap();
 
             let result = board.set_singles();
@@ -454,7 +458,7 @@ impl Board {
 
     pub fn set_naked_singles(&mut self) -> LogicResult {
         let mut changed = false;
-        while self.singles.len() > 0 {
+        while !self.singles.is_empty() {
             let index = self.singles.pop().unwrap();
 
             assert!(self.cells[index] & VALUE_SET == 0);
@@ -573,7 +577,7 @@ impl Board {
         let mut chars = ['.'; 81];
         for i in 0..81 {
             if is_value_set(self.cells[i]) {
-                chars[i] = (get_value(self.cells[i]) as u8 + '0' as u8) as char;
+                chars[i] = (get_value(self.cells[i]) as u8 + b'0') as char;
             }
         }
 

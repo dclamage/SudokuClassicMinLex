@@ -41,7 +41,7 @@ fn minlex(sudoku_str: &str) -> PyResult<String> {
         // Swap bands
         for order in &order_perms {
             let mut cur_sudoku = cur_sudoku.clone();
-            swap_band_order(&mut cur_sudoku, &order);
+            swap_band_order(&mut cur_sudoku, order);
 
             let mut zero_row_index: Option<usize> = None;
             let mut one_row_index: Option<usize> = None;
@@ -67,7 +67,7 @@ fn minlex(sudoku_str: &str) -> PyResult<String> {
             // Swap rows within the first band
             for order in &order_perms {
                 let mut cur_sudoku = cur_sudoku.clone();
-                swap_row_order(&mut cur_sudoku, &order, &[0, 1, 2]);
+                swap_row_order(&mut cur_sudoku, order, &[0, 1, 2]);
 
                 let row123_counts = [
                     count_row(&cur_sudoku, 0),
@@ -103,16 +103,14 @@ fn minlex(sudoku_str: &str) -> PyResult<String> {
                 // Swap stacks
                 for order in &order_perms {
                     let mut cur_sudoku = cur_sudoku.clone();
-                    swap_stack_order(&mut cur_sudoku, &order);
+                    swap_stack_order(&mut cur_sudoku, order);
 
                     let mut skip = false;
                     for row in 0..3 {
                         if row123_stacks_covered[row] > 0 {
                             let row_offset = row * 9;
                             if row123_stacks_covered[row] == 1 {
-                                let digit_index = (0..9)
-                                    .filter(|col| cur_sudoku[row_offset + col] != 0)
-                                    .next()
+                                let digit_index = (0..9).find(|col| cur_sudoku[row_offset + col] != 0)
                                     .unwrap();
                                 if digit_index <= 5 {
                                     skip = true;
@@ -141,7 +139,7 @@ fn minlex(sudoku_str: &str) -> PyResult<String> {
                     // Swap rows within the second band
                     for order in &order_perms {
                         let mut cur_sudoku = cur_sudoku.clone();
-                        swap_row_order(&mut cur_sudoku, &order, &[3, 4, 5]);
+                        swap_row_order(&mut cur_sudoku, order, &[3, 4, 5]);
 
                         let row456_counts = [
                             count_row(&cur_sudoku, 3),
@@ -157,7 +155,7 @@ fn minlex(sudoku_str: &str) -> PyResult<String> {
                         // Swap rows within the third band
                         for order in &order_perms {
                             let mut cur_sudoku = cur_sudoku.clone();
-                            swap_row_order(&mut cur_sudoku, &order, &[6, 7, 8]);
+                            swap_row_order(&mut cur_sudoku, order, &[6, 7, 8]);
 
                             let row789_counts = [
                                 count_row(&cur_sudoku, 6),
@@ -174,17 +172,17 @@ fn minlex(sudoku_str: &str) -> PyResult<String> {
                             // Swap cols within the first stack
                             for order in &order_perms {
                                 let mut cur_sudoku = cur_sudoku.clone();
-                                swap_col_order(&mut cur_sudoku, &order, &[0, 1, 2]);
+                                swap_col_order(&mut cur_sudoku, order, &[0, 1, 2]);
 
                                 // Swap cols within the second stack
                                 for order in &order_perms {
                                     let mut cur_sudoku = cur_sudoku.clone();
-                                    swap_col_order(&mut cur_sudoku, &order, &[3, 4, 5]);
+                                    swap_col_order(&mut cur_sudoku, order, &[3, 4, 5]);
 
                                     // Swap cols within the third stack
                                     for order in &order_perms {
                                         let mut cur_sudoku = cur_sudoku.clone();
-                                        swap_col_order(&mut cur_sudoku, &order, &[6, 7, 8]);
+                                        swap_col_order(&mut cur_sudoku, order, &[6, 7, 8]);
 
                                         // Renumber the grid to be in lexicographic order
                                         renumber(&mut cur_sudoku);
@@ -282,9 +280,9 @@ fn singles(sudoku_str: &str) -> String {
 
 fn parse_digit(c: char) -> u8 {
     let c = c as u8;
-    const ZERO: u8 = '0' as u8;
-    const NINE: u8 = '9' as u8;
-    if c >= ZERO && c <= NINE {
+    const ZERO: u8 = b'0';
+    const NINE: u8 = b'9';
+    if (ZERO..=NINE).contains(&c) {
         c - ZERO
     } else {
         0
@@ -294,7 +292,7 @@ fn parse_digit(c: char) -> u8 {
 fn to_string(sudoku: &Vec<u8>) -> String {
     let mut result = String::with_capacity(81);
     for i in 0..81 {
-        result.push((sudoku[i] + '0' as u8) as char);
+        result.push((sudoku[i] + b'0') as char);
     }
     result
 }
