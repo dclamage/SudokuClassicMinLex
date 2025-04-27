@@ -14,10 +14,6 @@ fn minlex(sudoku_str: &str) -> PyResult<String> {
         ));
     }
 
-    // Determine whether rows, columns, or both need to be checked
-    let min_row_count = (0..9).map(|row| count_row(&sudoku, row)).min().unwrap();
-    let min_col_count = (0..9).map(|col| count_col(&sudoku, col)).min().unwrap();
-
     let order_perms: Vec<Vec<usize>> = (0..3).permutations(3).collect();
     let mut best_result: String = String::new();
     let mut best_result_row1_stacks_covered = 4;
@@ -25,13 +21,6 @@ fn minlex(sudoku_str: &str) -> PyResult<String> {
 
     // Only two rotations are needed because the rest are handled by row/col swapping
     for rot in 0..2 {
-        if rot == 0 && min_col_count < min_row_count {
-            continue;
-        }
-        if rot == 1 && min_row_count < min_col_count {
-            continue;
-        }
-
         let cur_sudoku = match rot {
             0 => sudoku.clone(),
             1 => remap(&sudoku, |i, j| (j, i)),
@@ -419,16 +408,6 @@ fn count_row(sudoku: &Vec<u8>, row: usize) -> usize {
     let mut count = 0;
     for i in 0..9 {
         if sudoku[row_offset + i] != 0 {
-            count += 1;
-        }
-    }
-    count
-}
-
-fn count_col(sudoku: &Vec<u8>, col: usize) -> usize {
-    let mut count = 0;
-    for i in 0..9 {
-        if sudoku[i * 9 + col] != 0 {
             count += 1;
         }
     }
